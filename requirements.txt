@@ -1,0 +1,62 @@
+# pip install -r requirements.txt
+# base ----------------------------------------
+matplotlib>=3.2.2
+numpy>=1.18.5
+opencv-python>=4.1.2
+Pillow
+PyYAML>=5.3.1
+scipy>=1.4.1
+torch>=1.7.0
+torchvision>=0.8.1
+tqdm>=4.41.0
+# logging -------------------------------------
+tensorboard>=2.4.1
+# wandb
+# plotting ------------------------------------
+seaborn>=0.11.0
+pandas
+# export --------------------------------------
+# coremltools>=4.1
+# onnx>=1.9.0
+# scikit-learn==0.19.2  # for coreml quantization
+# extras --------------------------------------
+# Cython  # for pycocotools https://github.com/cocodataset/cocoapi/issues/172
+# pycocotools>=2.0  # COCO mAP
+# albumentations>=1.0.2
+thop  # FLOPs computation
+
+
+chumpy
+dataclasses; python_version == '3.6'
+json_tricks
+munkres
+coverage
+flake8
+interrogate
+isort==4.3.21
+pytest
+pytest-runner
+smplx>=0.1.28
+xdoctest>=0.10.0
+yapf
+albumentations>=0.3.2
+onnx
+onnxruntime
+poseval@git+https://github.com/svenkreiss/poseval.git
+pyrender
+smplx>=0.1.28
+Cython
+
+mmcv-full
+
+
+#pip uninstall shapely
+#conda install shapely
+
+#cd keypoint_detector
+#python setup.py develop
+#cd ../
+
+#cd xtcocoapi
+#python setup.py install
+#cd ../
