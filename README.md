@@ -1,5 +1,8 @@
 ## Install
 a. git clone  
+```shell
+git clone https://github.com/maveltoz/ADK2021.git
+```
 
 b. install requirements
 ```shell
