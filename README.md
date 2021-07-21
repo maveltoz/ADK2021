@@ -30,7 +30,7 @@ cd ../
 ```
 
 ## Data/Weight Preparation
-a. Nas -> root -> 연구원자료 -> 김대훈 -> ADK2021 -> data.7z 다운로드 후 ADK2021 폴더에 압축 해제
+a. Nas -> root -> 연구원자료 -> 김대훈 -> ADK2021 -> data.7z 다운로드 후 ADK2021 폴더에 압축 해제  
 b. Nas -> root -> 연구원자료 -> 김대훈 -> ADK2021 -> weights.7z 다운로드 후 ADK2021 폴더에 압축 해제
 
 ## Training
