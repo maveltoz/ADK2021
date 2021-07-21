@@ -36,7 +36,7 @@ Nas -> root -> 연구원자료 -> 김대훈 -> ADK2021 -> data.7z 다운로드 �
 b. Weight Preparation  
 Nas -> root -> 연구원자료 -> 김대훈 -> ADK2021 -> weights.7z 다운로드 후 ADK2021 폴더에 압축 해제  
 
-최종 폴더 구성  
+- 최종 폴더 구성  
 
 ```text
 ADK2021
