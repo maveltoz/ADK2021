@@ -20,10 +20,14 @@ python setup.py install
 cd ../
 
 # Training
+```shell
 python keypoint_detector/tools/train.py ${CONFIG_FILE} [optional arguments]  
+```
 
-e.g.)
+e.g.)  
+```shell
 python keypoint_detector/tools/train.py keypoint_detector/configs/hrnet_w48_animalpose_256x256.py
+```
 
 --validate (strongly recommended): Perform evaluation at every k (default value is 5 epochs during the training.
 --work-dir ${WORK_DIR}: Override the working directory specified in the config file.
