@@ -1,4 +1,4 @@
-## Install1
+## Install
 a. git clone  
 ```shell
 git clone https://github.com/maveltoz/ADK2021.git
