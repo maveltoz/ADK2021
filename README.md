@@ -1,4 +1,4 @@
-# Install
+## Install
 **1.**  
 git clone
 
@@ -19,7 +19,7 @@ cd xtcocoapi
 python setup.py install
 cd ../
 
-# Training
+## Training
 ```shell
 python keypoint_detector/tools/train.py ${CONFIG_FILE} [optional arguments]  
 ```
@@ -44,3 +44,14 @@ Optional arguments are:
 Difference between `resume-from` and `load-from`:
 `resume-from` loads both the model weights and optimizer status, and the epoch is also inherited from the specified checkpoint. It is usually used for resuming the training process that is interrupted accidentally.
 `load-from` only loads the model weights and the training epoch starts from 0. It is usually used for finetuning.
+
+## Inference
+```shell
+run main.py
+```
+
+- `img_root(main.py 12 lines)` : inference image root folder
+- `ann_root(main.py 13 lines)` : inference image's annotation root folder
+- `model(main.py 30 lines)` : init_pose_model(config file, checkpoint weight)
+- `vis_pose_result(main.py 59 lines)` : save result images to './results'
+- `keypoint_pck_accuracy(main.py 99 lines)` : evaluate PCK
