@@ -1,23 +1,30 @@
 ## Install
-1.  
-git clone
+a. git clone  
 
-2.  
+b. install requirements
+```shell
 pip install -r requirements.txt
+```
 
-3.  
+c. reinstall shapely
+```shell
 pip uninstall shapely  
 conda install shapely
+```
 
-4.  
+d. setup keypoint_detector
+```shell
 cd keypoint_detector  
 python setup.py develop  
 cd ../
+```
 
-5.  
+e. setup xtcocoapi
+```shell
 cd xtcocoapi  
 python setup.py install  
 cd ../
+```
 
 ## Training
 ```shell
