@@ -1,10 +1,8 @@
 import json
 
 
-def get_custom_json():
-    json_file_path = "./data/animalpose/annotations_ori/animalpose_val.json"
-
-    dataset = json.load(open(json_file_path, 'r'))
+def get_custom_json(annotation_file, out_file):
+    dataset = json.load(open(annotation_file, 'r'))
 
     for data in dataset['annotations']:
         keypoints = data['keypoints']
@@ -89,9 +87,11 @@ def get_custom_json():
 
     dataset['categories'][0]['skeleton'] = skeleton
 
-    with open('animalpose_val_custom.json', 'w', encoding='utf-8') as make_file:
+    with open(out_file, 'w', encoding='utf-8') as make_file:
         json.dump(dataset, make_file, ensure_ascii=False, indent='    ')
 
 
 if __name__ == '__main__':
-    get_custom_json()
+    annotation_file = './data/animalpose/annotations_ori/animalpose_val.json'
+    out_file = 'animalpose_val_custom.json'
+    get_custom_json(annotation_file, out_file)
