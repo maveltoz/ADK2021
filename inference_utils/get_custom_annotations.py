@@ -92,6 +92,6 @@ def get_custom_json(annotation_file, out_file):
 
 
 if __name__ == '__main__':
-    annotation_file = './data/animalpose/annotations_ori/animalpose_val.json'
-    out_file = 'animalpose_val_custom.json'
+    annotation_file = '../data/animalpose/annotations/animalpose_train.json'
+    out_file = '../animalpose_train_custom.json'
     get_custom_json(annotation_file, out_file)
