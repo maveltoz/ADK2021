@@ -79,18 +79,15 @@ class AnimalPoseDataset(AnimalBaseDataset):
         self.oks_thr = data_cfg['oks_thr']
         self.vis_thr = data_cfg['vis_thr']
 
-        self.ann_info['flip_pairs'] = [[0, 1], [2, 3], [8, 9], [10, 11],
-                                       [12, 13], [14, 15], [16, 17], [18, 19]]
+        self.ann_info['flip_pairs'] = [[3, 6], [4, 7], [5, 8], [10, 13], [11, 14], [12, 15]]
 
-        self.ann_info['upper_body_ids'] = (0, 1, 2, 3, 4, 5, 7, 8, 9, 12, 13,
-                                           16, 17)
-        self.ann_info['lower_body_ids'] = (6, 10, 11, 14, 15, 18, 19)
+        self.ann_info['upper_body_ids'] = (0, 1, 2, 3, 4, 7, 10, 11, 14)
+        self.ann_info['lower_body_ids'] = (5, 6, 8, 9, 12, 13, 15, 16)
 
         self.ann_info['use_different_joint_weights'] = False
         self.ann_info['joint_weights'] = np.array(
             [
-                1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.2, 1.2, 1.2,
-                1.2, 1.5, 1.5, 1.5, 1.5
+                1., 1., 1., 1., 1.2, 1.5, 1., 1.2, 1.5, 1., 1., 1.2, 1.5, 1., 1.2, 1.5, 1
             ],
             dtype=np.float32).reshape((self.ann_info['num_joints'], 1))
 
@@ -98,8 +95,7 @@ class AnimalPoseDataset(AnimalBaseDataset):
         # the sigmas. We modified from 'https://github.com/cocodataset/'
         # 'cocoapi/blob/master/PythonAPI/pycocotools/cocoeval.py#L523'
         self.sigmas = np.array([
-            .25, .25, .26, .35, .35, 1.0, 1.0, 1.0, 1.07, 1.07, 1.07, 1.07,
-            .87, .87, .87, .87, .89, .89, .89, .89
+            .35, 1.0, 1.0, 1.07, .87, .89, 1.07, .87, .89, 1.0, 1.07, .87, .89, 1.07, .87, .89, 1.0
         ]) / 10.0
 
         self.coco = COCO(ann_file)
