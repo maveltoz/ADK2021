@@ -27,13 +27,13 @@ log_config = dict(
     ])
 
 channel_cfg = dict(
-    num_output_channels=20,
-    dataset_joints=20,
+    num_output_channels=17,
+    dataset_joints=17,
     dataset_channel=[
-        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
+        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
     ],
     inference_channel=[
-        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
     ])
 
 # model settings
