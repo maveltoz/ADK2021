@@ -134,9 +134,10 @@ def parse_opt():
     return opt
 
 
-def main(source):
+def main(source, object_detect_model):
     opt = parse_opt()
     opt.source = source
+    opt.weights = object_detect_model
     print(colorstr('detect: ') + ', '.join(f'{k}={v}' for k, v in vars(opt).items()))
     # check_requirements(exclude=('tensorboard', 'thop'))
     bboxes = run(**vars(opt))
