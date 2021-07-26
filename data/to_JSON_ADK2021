@@ -1,0 +1,59 @@
+import json, os
+from collections import OrderedDict
+
+# image_dir = 'C:/Users/minu/Documents/PycharmProjects/ADK2021/data/Training_Data/images/'
+# json_dir = 'C:/Users/minu/Documents/PycharmProjects/ADK2021/data/Training_Data/annotations/'
+image_dir = 'C:/Users/minu/Documents/PycharmProjects/ADK2021/data/Training_Data/test_img/'
+json_dir = 'C:/Users/minu/Documents/PycharmProjects/ADK2021/data/Training_Data/test_anno/'
+
+file_data = OrderedDict()
+
+jsonfile = os.listdir(json_dir)
+
+# data split
+train_num = 15
+test_num = train_num + 4
+validation_num = len(jsonfile) - 1
+
+image = []
+annotations = []
+categories = []
+
+for i, data_name in enumerate(jsonfile):
+    with open(json_dir + data_name, 'r') as json_file:
+        cow_data = json.load(json_file)
+    id = int(cow_data['label_info']['image']['file_name'].split('livestock_cow_keypoints_')[1].split('.jpg')[0])
+
+    image.append({'file_name': cow_data['label_info']['image']['file_name'],
+                               'height': cow_data['label_info']['image']['height'],
+                               'width': cow_data['label_info']['image']['width'],
+                               'id': id,
+                               })
+    annotations.append({'image_id': id, 'id': (id + 100000), 'category_id': cow_data['label_info']['annotations'][0]['category_id'],
+                                     'keypoints': cow_data['label_info']['annotations'][0]['keypoints'],
+                                     'bbox': cow_data['label_info']['annotations'][0]['bbox']})
+    categories = [cow_data['label_info']['categories'][0]]
+
+    if i == train_num:
+        file_data = {'image': image, 'annotations': annotations, 'categories': categories}
+        with open('data/animalpose/annotations/animalpose_train.json', 'w', encoding='utf-8') as make_file:
+            json.dump(file_data, make_file, ensure_ascii=False, indent='\t')
+        image = []
+        annotations = []
+        categories = []
+
+    elif i == test_num:
+        file_data = {'image': image, 'annotations': annotations, 'categories': categories}
+        with open('data/animalpose/annotations/animalpose_test.json', 'w', encoding='utf-8') as make_file:
+            json.dump(file_data, make_file, ensure_ascii=False, indent='\t')
+        image = []
+        annotations = []
+        categories = []
+
+    elif i == validation_num:
+        file_data = {'image': image, 'annotations': annotations, 'categories': categories}
+        with open('data/animalpose/annotations/animalpose_val.json', 'w', encoding='utf-8') as make_file:
+            json.dump(file_data, make_file, ensure_ascii=False, indent='\t')
+        image = []
+        annotations = []
+        categories = []
