@@ -9,20 +9,20 @@ import cv2
 
 start = time.time()
 
-img_root = 'data/animalpose/images/'
-ann_root = 'data/test/challenge_annotations/'
+img_root = 'data/challenge_test_images/'
+ann_root = 'data/challenge_test_annotations/'
 dataset = 'AnimalPoseDataset'
 
 object_detect_model = 'weights/object_detector/yolov5x6.pt'
 keypoint_detector_config = 'keypoint_detector/configs/hrnet_w48_animalpose_256x256.py'
-keypoint_detector_model = 'work_dirs/hrnet_w48_animalpose_256x256/epoch_210.pth'
+keypoint_detector_model = 'work_dirs/joints_weight_validation_epoch_210/epoch_210.pth'
 
 images = []
 preds = []
 imgs = []
 
 eval_pck = True
-visualization_result = False
+visualization_result = True
 
 entries = os.listdir(img_root)
 
