@@ -84,7 +84,7 @@ class AnimalPoseDataset(AnimalBaseDataset):
         self.ann_info['upper_body_ids'] = (0, 1, 2, 3, 4, 7, 10, 11, 14)
         self.ann_info['lower_body_ids'] = (5, 6, 8, 9, 12, 13, 15, 16)
 
-        self.ann_info['use_different_joint_weights'] = False
+        self.ann_info['use_different_joint_weights'] = True
         self.ann_info['joint_weights'] = np.array(
             [
                 1., 1., 1., 1., 1.2, 1.5, 1., 1.2, 1.5, 1., 1., 1.2, 1.5, 1., 1.2, 1.5, 1
@@ -114,6 +114,14 @@ class AnimalPoseDataset(AnimalBaseDataset):
         self.num_images = len(self.img_ids)
         self.id2name, self.name2id = self._get_mapping_id_name(self.coco.imgs)
         self.dataset_name = 'animalpose'
+
+        # print('img_ids')
+        # print(self.img_ids)
+        # print('self.id2name')
+        # print(self.id2name)
+        # print('name2id')
+        # print(self.name2id)
+        # exit(0)
 
         self.db = self._get_db()
 
@@ -339,7 +347,7 @@ class AnimalPoseDataset(AnimalBaseDataset):
     def _do_python_keypoint_eval(self, res_file):
         """Keypoint evaluation using COCOAPI."""
         coco_det = self.coco.loadRes(res_file)
-        coco_eval = COCOeval(self.coco, coco_det, 'keypoints', self.sigmas)
+        coco_eval = COCOeval(self.coco, coco_det, 'keypoints', self.sigmas, use_area=False)
         coco_eval.params.useSegm = None
         coco_eval.evaluate()
         coco_eval.accumulate()
