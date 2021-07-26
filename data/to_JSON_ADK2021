@@ -11,9 +11,9 @@ file_data = OrderedDict()
 jsonfile = os.listdir(json_dir)
 
 # data split
-train_num = 15
-test_num = train_num + 4
-validation_num = len(jsonfile) - 1
+train_num = 8
+validation_num = train_num + 4
+test_num = len(jsonfile) - 1
 
 image = []
 annotations = []
@@ -42,17 +42,17 @@ for i, data_name in enumerate(jsonfile):
         annotations = []
         categories = []
 
-    elif i == test_num:
+    elif i == validation_num:
         file_data = {'image': image, 'annotations': annotations, 'categories': categories}
-        with open('data/animalpose/annotations/animalpose_test.json', 'w', encoding='utf-8') as make_file:
+        with open('data/animalpose/annotations/animalpose_val.json', 'w', encoding='utf-8') as make_file:
             json.dump(file_data, make_file, ensure_ascii=False, indent='\t')
         image = []
         annotations = []
         categories = []
 
-    elif i == validation_num:
+    elif i == test_num:
         file_data = {'image': image, 'annotations': annotations, 'categories': categories}
-        with open('data/animalpose/annotations/animalpose_val.json', 'w', encoding='utf-8') as make_file:
+        with open('data/animalpose/annotations/animalpose_test.json', 'w', encoding='utf-8') as make_file:
             json.dump(file_data, make_file, ensure_ascii=False, indent='\t')
         image = []
         annotations = []
