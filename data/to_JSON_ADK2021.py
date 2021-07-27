@@ -3,12 +3,11 @@ from collections import OrderedDict
 
 image_dir = 'C:/Users/minu/Documents/PycharmProjects/ADK2021/data/Training_Data/images/'
 json_dir = 'C:/Users/minu/Documents/PycharmProjects/ADK2021/data/Training_Data/annotations/'
-result_dir = 'data/animalpose/annotations/animalpose_'
+result_dir = 'data/animalpose/annotations/'
 # image_dir = 'C:/Users/minu/Documents/PycharmProjects/ADK2021/data/Training_Data/test_img/'
 # json_dir = 'C:/Users/minu/Documents/PycharmProjects/ADK2021/data/Training_Data/test_anno/'
 
 file_data = OrderedDict()
-
 jsonfile = os.listdir(json_dir)
 
 # data split
@@ -25,7 +24,7 @@ def split_data(data):
     global file_data
 
     file_data = {'images': images, 'annotations': annotations, 'categories': categories}
-    with open(result_dir + data + '.json', 'w', encoding='utf-8') as make_file:
+    with open(result_dir + 'animalpose_' + data + '.json', 'w', encoding='utf-8') as make_file:
         json.dump(file_data, make_file, ensure_ascii=False, indent='\t')
 
     images = []
