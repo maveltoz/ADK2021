@@ -11,8 +11,8 @@ file_data = OrderedDict()
 jsonfile = os.listdir(json_dir)
 
 # data split
-train_num = 6000 - 1
-validation_num = train_num + 2000
+train_num = 6000
+validation_num = 2000
 test_num = len(jsonfile) - 1
 
 images = []
@@ -46,10 +46,10 @@ for i, data_name in enumerate(jsonfile):
                                      'bbox': cow_data['label_info']['annotations'][0]['bbox']})
     categories = [cow_data['label_info']['categories'][0]]
 
-    if i == train_num:
+    if i == (train_num - 1):
         split_data('train')
 
-    elif i == validation_num:
+    elif i == (train_num + validation_num):
         split_data('val')
 
     elif i == test_num:
