@@ -2,7 +2,7 @@ import os
 import numpy as np
 import time
 from keypoint_detector.mmpose.apis.inference import inference_top_down_pose_model, init_pose_model, vis_pose_result
-from inference_utils.evaluation_pck import get_single_pck, get_pck_json
+from inference_utils.evaluation_pck import get_pck_json
 from PIL import Image
 
 
