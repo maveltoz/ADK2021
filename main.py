@@ -1,10 +1,9 @@
 import os
 import numpy as np
 import time
-from object_detector import detect
 from keypoint_detector.mmpose.apis.inference import inference_top_down_pose_model, init_pose_model, vis_pose_result
-from inference_utils.evaluation_pck import get_single_pck, get_pck, get_pck_json
-import cv2
+from inference_utils.evaluation_pck import get_single_pck, get_pck_json
+from PIL import Image
 
 
 start = time.time()
@@ -13,48 +12,35 @@ img_root = 'data/challenge_test_images/'
 ann_root = 'data/challenge_test_annotations/'
 dataset = 'AnimalPoseDataset'
 
-object_detect_model = 'weights/object_detector/yolov5x6.pt'
 keypoint_detector_config = 'keypoint_detector/configs/hrnet_w48_animalpose_256x256.py'
-keypoint_detector_model = 'work_dirs/joints_weight_validation_epoch_210/epoch_210.pth'
+keypoint_detector_model = 'work_dirs/hrnet_w48_animalpose_256x256/epoch_100.pth'
 
-images = []
 preds = []
-imgs = []
+bboxes = []
 
 eval_pck = True
-visualization_result = True
+visualization_result = False
 
 entries = os.listdir(img_root)
 
 for entry in entries:
-    image = img_root + entry
-    images.append(image)
-    img = cv2.imread(image)
-    imgs.append([[0, 0, img.shape[1], img.shape[0]]])
-
-# bboxes = detect.main(img_root, object_detect_model)
-bboxes = imgs
-# print(bboxes)
+    img = Image.open(img_root + entry)
+    bboxes.append([[0, 0, img.size[0], img.size[1]]])
 
 model = init_pose_model(keypoint_detector_config, keypoint_detector_model)
 
 for i, bbox in enumerate(bboxes):
-    person_results = []
-    for box in bbox:
-        person_results.append({'bbox': box})
+    img_path = img_root + entries[i]
+    bbox = np.array(bbox)
 
-    img_path = images[i]
+    result = inference_top_down_pose_model(model, img_path, bbox, dataset=dataset)
 
-    person_results = np.array(person_results)
-    result = inference_top_down_pose_model(model, img_path, person_results, dataset=dataset)
-
-    out_file_name = 'results/' + img_path.split('/')[-1]
     if visualization_result:
+        out_file_name = 'results/' + img_path.split('/')[-1]
         vis_pose_result(model, img_path, result, dataset=dataset, out_file=out_file_name)
 
     if eval_pck:
-        single_pck = get_single_pck(result)
-        preds.append(single_pck)
+        preds.append(result[0][:, :-1])
 
 if eval_pck:
     pck = get_pck_json(preds, ann_root)
