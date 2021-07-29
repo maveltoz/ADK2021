@@ -73,7 +73,7 @@ Difference between `resume-from` and `load-from`:
 
 ## Inference
 ```shell
-run main.py
+python main.py
 ```
 
 - `img_root(main.py 11 lines)` : inference image root folder
