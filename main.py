@@ -13,7 +13,7 @@ ann_root = 'data/challenge_test_annotations/'
 dataset = 'AnimalPoseDataset'
 
 keypoint_detector_config = 'keypoint_detector/configs/hrnet_w48_animalpose_256x256.py'
-keypoint_detector_model = 'work_dirs/hrnet_w48_animalpose_256x256/epoch_100.pth'
+keypoint_detector_model = 'weights/epoch_210.pth'
 
 preds = []
 bboxes = []
