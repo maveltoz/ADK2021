@@ -23,19 +23,6 @@ python setup.py install
 cd ../
 ```
 
-e. setup poseval
-```shell
-cd poseval  
-python setup.py install  
-cd ../
-```
-
-f. reinstall shapely
-```shell
-pip uninstall shapely  
-conda install shapely
-```
-
 ## Preparation
 a. Data Preparation  
 Nas -> root -> 연구원자료 -> 김대훈 -> ADK2021 -> data.7z 다운로드 후 ADK2021 폴더에 압축 해제  
