@@ -1,0 +1,8 @@
+click
+motmetrics>=1.2
+shapely
+tqdm
+
+[dev]
+pylint
+pytest
