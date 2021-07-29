@@ -53,7 +53,8 @@ def get_pck_json(preds, ann_root='data/test/challenge_annotations/'):
                 if z == 2:
                     mask = True
                 else:
-                    mask = False
+                    mask = True
+                    # mask = False
                 now_mask.append(mask)
             gts.append(now_gt)
             masks.append(now_mask)
