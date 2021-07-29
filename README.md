@@ -9,24 +9,31 @@ b. install requirements
 pip install -r requirements.txt
 ```
 
-c. reinstall shapely
-```shell
-pip uninstall shapely  
-conda install shapely
-```
-
-d. setup keypoint_detector
+c. setup keypoint_detector
 ```shell
 cd keypoint_detector  
 python setup.py develop  
 cd ../
 ```
 
-e. setup xtcocoapi
+d. setup xtcocoapi
 ```shell
 cd xtcocoapi  
 python setup.py install  
 cd ../
+```
+
+e. setup poseval
+```shell
+cd poseval  
+python setup.py install  
+cd ../
+```
+
+f. reinstall shapely
+```shell
+pip uninstall shapely  
+conda install shapely
 ```
 
 ## Preparation
