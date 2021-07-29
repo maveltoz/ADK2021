@@ -39,7 +39,6 @@ ADK2021
             │-- ...
 ├── inference_utils
 ├── keypoint_detector
-├── poseval
 ├── results
 ├── weights
 ├── work_dirs
