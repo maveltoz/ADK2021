@@ -6,8 +6,6 @@ opencv-python>=4.1.2
 Pillow
 PyYAML>=5.3.1
 scipy>=1.4.1
-torch>=1.7.0
-torchvision>=0.8.1
 tqdm>=4.41.0
 # logging -------------------------------------
 tensorboard>=2.4.1
@@ -42,7 +40,7 @@ yapf
 albumentations>=0.3.2
 onnx
 onnxruntime
-poseval@git+https://github.com/svenkreiss/poseval.git
+# poseval@git+https://github.com/svenkreiss/poseval.git
 pyrender
 smplx>=0.1.28
 Cython
@@ -50,8 +48,9 @@ Cython
 mmcv-full
 
 
-#pip uninstall shapely
-#conda install shapely
+# install guide
+
+#pip install -r requirements.txt
 
 #cd keypoint_detector
 #python setup.py develop
@@ -60,3 +59,10 @@ mmcv-full
 #cd xtcocoapi
 #python setup.py install
 #cd ../
+
+#cd poseval
+#python setup.py install
+#cd ../
+
+#pip uninstall shapely
+#conda install shapely
