@@ -43,8 +43,9 @@ ADK2021
 ├── data
     │── animalpose
             │-- ...
+├── inference_utils
 ├── keypoint_detector
-├── object_detector
+├── poseval
 ├── results
 ├── weights
 ├── work_dirs
