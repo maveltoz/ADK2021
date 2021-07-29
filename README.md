@@ -88,3 +88,4 @@ python main.py
 - 해당 프로젝트 폴더로 이동 ( ex> cd ADK2021 )
 - `tensorboard --logdir=./work_dirs/hrnet_w48_256x256/tf_logs/` 입력
 - 화면에 나오는 주소로 접속( ex> http://localhost:6006 )
+- 참고 자료) https://copycoding.tistory.com/88
