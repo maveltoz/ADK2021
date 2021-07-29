@@ -81,3 +81,10 @@ python main.py
 - `keypoint_detector_model(main.py 16 lines)` : pretrained weight path
 - `eval_pck(main.py 21 lines)` : if True: evaluate PCK
 - `visualization_result(main.py 22 lines)` : if True: save result images to './results'
+
+## Tensorboard
+- config file에 dict(type='TensorboardLoggerHook') 있는지 확인 후 학습( ex> hrnet_w48_256x256.py 26번째 줄 )
+- 학습 종료 후 anaconda prompt에서 해당 가상환경 activate
+- 해당 프로젝트 폴더로 이동 ( ex> cd ADK2021 )
+- `tensorboard --logdir=./work_dirs/hrnet_w48_256x256/tf_logs/` 입력
+- 화면에 나오는 주소로 접속( ex> http://localhost:6006 )
