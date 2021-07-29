@@ -19,7 +19,7 @@ preds = []
 bboxes = []
 
 eval_pck = True
-visualization_result = False
+visualization_result = False # 현재 visualization_result는 안됩니다.
 
 entries = os.listdir(img_root)
 entries.sort()
