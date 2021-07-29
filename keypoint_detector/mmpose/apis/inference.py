@@ -236,7 +236,7 @@ def _inference_single_pose_model(model,
             return_loss=False,
             return_heatmap=return_heatmap)
 
-    return result['preds'], result['output_heatmap']
+    return result['preds']
 
 
 def inference_top_down_pose_model(model,
@@ -282,155 +282,30 @@ def inference_top_down_pose_model(model,
             Includes 'heatmap' if `return_heatmap` is True.
     """
     # only two kinds of bbox format is supported.
-    assert format in ['xyxy', 'xywh']
-
-    pose_results = []
-    returned_outputs = []
+    assert format in ['xyxy']
 
     if len(person_results) == 0:
-        return pose_results, returned_outputs
+        return []
 
     # Change for-loop preprocess each bbox to preprocess all bboxes at once.
-    bboxes = np.array([box['bbox'] for box in person_results])
+    bboxes = person_results
 
-    # Select bboxes by score threshold
-    if bbox_thr is not None:
-        assert bboxes.shape[1] == 5
-        valid_idx = np.where(bboxes[:, 4] > bbox_thr)[0]
-        bboxes = bboxes[valid_idx]
-        person_results = [person_results[i] for i in valid_idx]
-
-    if format == 'xyxy':
-        bboxes_xyxy = bboxes
-        bboxes_xywh = _xyxy2xywh(bboxes)
-    else:
-        # format is already 'xywh'
-        bboxes_xywh = bboxes
-        bboxes_xyxy = _xywh2xyxy(bboxes)
-
-    # if bbox_thr remove all bounding box
-    if len(bboxes_xywh) == 0:
-        return [], []
+    bboxes_xyxy = bboxes
+    bboxes_xywh = _xyxy2xywh(bboxes)
 
     with OutputHook(model, outputs=outputs, as_tensor=False) as h:
         # poses is results['pred'] # N x 17x 3
-        poses, heatmap = _inference_single_pose_model(
+        poses = _inference_single_pose_model(
             model,
             img_or_path,
             bboxes_xywh,
             dataset,
             return_heatmap=return_heatmap)
 
-        if return_heatmap:
-            h.layer_outputs['heatmap'] = heatmap
-
-        returned_outputs.append(h.layer_outputs)
-
     assert len(poses) == len(person_results), print(
         len(poses), len(person_results), len(bboxes_xyxy))
-    for pose, person_result, bbox_xyxy in zip(poses, person_results,
-                                              bboxes_xyxy):
-        pose_result = person_result.copy()
-        pose_result['keypoints'] = pose
-        pose_result['bbox'] = bbox_xyxy
-        pose_results.append(pose_result)
 
-    return pose_results
-    # return pose_results, returned_outputs
-
-
-def inference_bottom_up_pose_model(model,
-                                   img_or_path,
-                                   pose_nms_thr=0.9,
-                                   return_heatmap=False,
-                                   outputs=None):
-    """Inference a single image.
-
-    num_people: P
-    num_keypoints: K
-    bbox height: H
-    bbox width: W
-
-    Args:
-        model (nn.Module): The loaded pose model.
-        img_or_path (str| np.ndarray): Image filename or loaded image.
-        pose_nms_thr (float): retain oks overlap < pose_nms_thr, default: 0.9.
-        return_heatmap (bool) : Flag to return heatmap, default: False.
-        outputs (list(str) | tuple(str)) : Names of layers whose outputs
-            need to be returned, default: None.
-
-    Returns:
-        list[ndarray]: The predicted pose info.
-            The length of the list is the number of people (P).
-            Each item in the list is a ndarray, containing each person's
-            pose (ndarray[Kx3]): x, y, score.
-        list[dict[np.ndarray[N, K, H, W] | torch.tensor[N, K, H, W]]]:
-            Output feature maps from layers specified in `outputs`.
-            Includes 'heatmap' if `return_heatmap` is True.
-    """
-    pose_results = []
-    returned_outputs = []
-
-    cfg = model.cfg
-    device = next(model.parameters()).device
-
-    # build the data pipeline
-    channel_order = cfg.test_pipeline[0].get('channel_order', 'rgb')
-    test_pipeline = [LoadImage(channel_order=channel_order)
-                     ] + cfg.test_pipeline[1:]
-    test_pipeline = Compose(test_pipeline)
-
-    # prepare data
-    data = {
-        'img_or_path': img_or_path,
-        'dataset': 'coco',
-        'ann_info': {
-            'image_size':
-            cfg.data_cfg['image_size'],
-            'num_joints':
-            cfg.data_cfg['num_joints'],
-            'flip_index':
-            [0, 2, 1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16, 15],
-        }
-    }
-
-    data = test_pipeline(data)
-    data = collate([data], samples_per_gpu=1)
-    if next(model.parameters()).is_cuda:
-        # scatter to specified GPU
-        data = scatter(data, [device])[0]
-    else:
-        # just get the actual data from DataContainer
-        data['img_metas'] = data['img_metas'].data[0]
-
-    with OutputHook(model, outputs=outputs, as_tensor=False) as h:
-        # forward the model
-        with torch.no_grad():
-            result = model(
-                img=data['img'],
-                img_metas=data['img_metas'],
-                return_loss=False,
-                return_heatmap=return_heatmap)
-
-        if return_heatmap:
-            h.layer_outputs['heatmap'] = result['output_heatmap']
-
-        returned_outputs.append(h.layer_outputs)
-
-        for idx, pred in enumerate(result['preds']):
-            area = (np.max(pred[:, 0]) - np.min(pred[:, 0])) * (
-                np.max(pred[:, 1]) - np.min(pred[:, 1]))
-            pose_results.append({
-                'keypoints': pred[:, :3],
-                'score': result['scores'][idx],
-                'area': area,
-            })
-
-        # pose nms
-        keep = oks_nms(pose_results, pose_nms_thr, sigmas=None)
-        pose_results = [pose_results[_keep] for _keep in keep]
-
-    return pose_results, returned_outputs
+    return poses
 
 
 def vis_pose_result(model,
