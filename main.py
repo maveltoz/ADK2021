@@ -12,7 +12,7 @@ img_root = 'data/challenge_test_images/'
 ann_root = 'data/challenge_test_annotations/'
 dataset = 'AnimalPoseDataset'
 
-keypoint_detector_config = 'keypoint_detector/configs/hrnet_w48_animalpose_256x256.py'
+keypoint_detector_config = 'keypoint_detector/configs/hrnet_w48_256x256.py'
 keypoint_detector_model = 'weights/epoch_210.pth'
 
 preds = []
@@ -22,6 +22,7 @@ eval_pck = True
 visualization_result = False
 
 entries = os.listdir(img_root)
+entries.sort()
 
 for entry in entries:
     img = Image.open(img_root + entry)
