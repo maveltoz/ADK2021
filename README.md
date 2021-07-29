@@ -41,7 +41,7 @@ a. Data Preparation
 Nas -> root -> 연구원자료 -> 김대훈 -> ADK2021 -> data.7z 다운로드 후 ADK2021 폴더에 압축 해제  
 
 b. Weight Preparation  
-Nas -> root -> 연구원자료 -> 김대훈 -> ADK2021 -> weights.7z 다운로드 후 ADK2021 폴더에 압축 해제  
+Nas -> root -> 연구원자료 -> 김대훈 -> ADK2021 -> epoch_210.pth 다운로드 후 ADK2021/weights 폴더에 저장  
 
 - 최종 폴더 구성  
 
@@ -90,8 +90,8 @@ Difference between `resume-from` and `load-from`:
 run main.py
 ```
 
-- `img_root(main.py 12 lines)` : inference image root folder
-- `ann_root(main.py 13 lines)` : inference image's annotation root folder
-- `model(main.py 30 lines)` : init_pose_model(config file, checkpoint weight)
-- `vis_pose_result(main.py 59 lines)` : save result images to './results'
-- `keypoint_pck_accuracy(main.py 99 lines)` : evaluate PCK
+- `img_root(main.py 11 lines)` : inference image root folder
+- `ann_root(main.py 12 lines)` : inference image's annotation root folder
+- `keypoint_detector_model(main.py 16 lines)` : pretrained weight path
+- `eval_pck(main.py 21 lines)` : if True: evaluate PCK
+- `visualization_result(main.py 22 lines)` : if True: save result images to './results'
