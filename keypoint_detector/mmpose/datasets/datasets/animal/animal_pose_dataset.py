@@ -115,14 +115,6 @@ class AnimalPoseDataset(AnimalBaseDataset):
         self.id2name, self.name2id = self._get_mapping_id_name(self.coco.imgs)
         self.dataset_name = 'animalpose'
 
-        # print('img_ids')
-        # print(self.img_ids)
-        # print('self.id2name')
-        # print(self.id2name)
-        # print('name2id')
-        # print(self.name2id)
-        # exit(0)
-
         self.db = self._get_db()
 
         print(f'=> num_images: {self.num_images}')

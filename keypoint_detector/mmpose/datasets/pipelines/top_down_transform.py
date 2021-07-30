@@ -221,6 +221,42 @@ class TopDownAffine:
 
 
 @PIPELINES.register_module()
+class TopDownCustomAffine:
+    """Affine transform the image to make input.
+
+    Required keys:'img', 'joints_3d', 'joints_3d_visible', 'ann_info','scale',
+    'rotation' and 'center'. Modified keys:'img', 'joints_3d', and
+    'joints_3d_visible'.
+
+    Args:
+        use_udp (bool): To use unbiased data processing.
+            Paper ref: Huang et al. The Devil is in the Details: Delving into
+            Unbiased Data Processing for Human Pose Estimation (CVPR 2020).
+    """
+
+    def __init__(self, use_udp=False):
+        self.use_udp = use_udp
+
+    def __call__(self, results):
+        image_size = results['ann_info']['image_size']
+
+        img = results['img']
+        c = results['center']
+        s = results['scale']
+        r = results['rotation']
+
+        trans = get_affine_transform(c, s, r, image_size)
+        img = cv2.warpAffine(
+            img,
+            trans, (int(image_size[0]), int(image_size[1])),
+            flags=cv2.INTER_LINEAR)
+
+        results['img'] = img
+
+        return results
+
+
+@PIPELINES.register_module()
 class TopDownGenerateTarget:
     """Generate the target heatmap.
 

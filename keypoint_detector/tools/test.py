@@ -1,18 +1,21 @@
 import argparse
 import os
-import os.path as osp
 import warnings
 
 import mmcv
 import torch
+import numpy as np
 from mmcv import Config, DictAction
-from mmcv.cnn import fuse_conv_bn
-from mmcv.parallel import MMDataParallel, MMDistributedDataParallel
-from mmcv.runner import get_dist_info, init_dist, load_checkpoint
+from mmcv.parallel import MMDataParallel
+from mmcv.runner import load_checkpoint
 
-from mmpose.apis import multi_gpu_test, single_gpu_test
+from mmpose.apis import single_gpu_test
 from mmpose.datasets import build_dataloader, build_dataset
 from mmpose.models import build_posenet
+from mmpose.core import keypoint_pck_accuracy
+import json
+import time
+
 
 try:
     from mmcv.runner import wrap_fp16_model
@@ -26,18 +29,13 @@ def parse_args():
     parser = argparse.ArgumentParser(description='mmpose test model')
     parser.add_argument('config', help='test config file path')
     parser.add_argument('checkpoint', help='checkpoint file')
+    parser.add_argument('--eval', help='output result file', default=True)
     parser.add_argument('--out', help='output result file')
     parser.add_argument(
         '--fuse-conv-bn',
         action='store_true',
         help='Whether to fuse conv and bn, this will slightly increase'
         'the inference speed')
-    parser.add_argument(
-        '--eval',
-        default=None,
-        nargs='+',
-        help='evaluation metric, which depends on the dataset,'
-        ' e.g., "mAP" for MSCOCO')
     parser.add_argument(
         '--gpu_collect',
         action='store_true',
@@ -74,7 +72,55 @@ def merge_configs(cfg1, cfg2):
     return cfg1
 
 
+def get_pck_json(preds, ann_root='data/test/challenge_annotations/'):
+    preds = np.array(preds)
+    gts = []
+    masks = []
+    thr = 0.2
+    normalize = []
+
+    entries = os.listdir(ann_root)
+    entries.sort()
+
+    for entry in entries:
+        with open(ann_root + entry) as annotation_file:
+            annotation = json.load(annotation_file)['label_info']
+
+            w = int(annotation['image']['width'])
+            h = int(annotation['image']['height'])
+            bbox_thr = np.max([w, h])
+            normalize.append([bbox_thr, bbox_thr])
+
+            now_gt = []
+            now_mask = []
+
+            for k in range(17):
+                x = annotation['annotations'][0]['keypoints'][3 * k]
+                y = annotation['annotations'][0]['keypoints'][3 * k + 1]
+                z = annotation['annotations'][0]['keypoints'][3 * k + 2]
+                gt = [x, y]
+                now_gt.append(gt)
+                if z == 2:
+                    mask = True
+                else:
+                    mask = True
+                    # mask = False
+                now_mask.append(mask)
+            gts.append(now_gt)
+            masks.append(now_mask)
+
+    gts = np.array(gts)
+    masks = np.array(masks)
+    normalize = np.array(normalize)
+
+    pck = keypoint_pck_accuracy(preds, gts, masks, thr, normalize)
+
+    return pck
+
+
 def main():
+    start = time.time()
+
     args = parse_args()
 
     cfg = Config.fromfile(args.config)
@@ -88,16 +134,8 @@ def main():
     cfg.model.pretrained = None
     cfg.data.test.test_mode = True
 
-    args.work_dir = osp.join('./work_dirs',
-                             osp.splitext(osp.basename(args.config))[0])
-    mmcv.mkdir_or_exist(osp.abspath(args.work_dir))
-
     # init distributed env first, since logger depends on the dist info.
-    if args.launcher == 'none':
-        distributed = False
-    else:
-        distributed = True
-        init_dist(args.launcher, **cfg.dist_params)
+    distributed = False
 
     # build the dataloader
     dataset = build_dataset(cfg.data.test, dict(test_mode=True))
@@ -113,37 +151,37 @@ def main():
 
     # build the model and load checkpoint
     model = build_posenet(cfg.model)
-    fp16_cfg = cfg.get('fp16', None)
-    if fp16_cfg is not None:
-        wrap_fp16_model(model)
+
+    wrap_fp16_model(model)
+
     load_checkpoint(model, args.checkpoint, map_location='cpu')
 
-    if args.fuse_conv_bn:
-        model = fuse_conv_bn(model)
+    model = MMDataParallel(model, device_ids=[0])
+    outputs = single_gpu_test(model, data_loader)
 
-    if not distributed:
-        model = MMDataParallel(model, device_ids=[0])
-        outputs = single_gpu_test(model, data_loader)
-    else:
-        model = MMDistributedDataParallel(
-            model.cuda(),
-            device_ids=[torch.cuda.current_device()],
-            broadcast_buffers=False)
-        outputs = multi_gpu_test(model, data_loader, args.tmpdir,
-                                 args.gpu_collect)
+    if args.eval:
+        preds = []
 
-    rank, _ = get_dist_info()
-    eval_config = cfg.get('evaluation', {})
-    eval_config = merge_configs(eval_config, dict(metric=args.eval))
+        for output in outputs:
+            for keypoints in output['preds']:
+                preds.append(np.array(keypoints)[:, :-1])
 
-    if rank == 0:
-        if args.out:
-            print(f'\nwriting results to {args.out}')
-            mmcv.dump(outputs, args.out)
+        preds = np.array(preds)
+        ann_root = 'data/challenge_test_annotations/'
 
-        results = dataset.evaluate(outputs, args.work_dir, **eval_config)
-        for k, v in sorted(results.items()):
-            print(f'{k}: {v}')
+        result = get_pck_json(preds, ann_root)
+        print('\n=> evaluation pck result:')
+        print(result)
+
+    if args.out:
+        out_file_path = "./result"
+        if not os.path.isdir(out_file_path):
+            os.mkdir(out_file_path)
+
+        print(f'\nwriting results to {args.out}')
+        mmcv.dump(outputs, out_file_path + '/' + args.out)
+
+    print('time : ', time.time() - start)
 
 
 if __name__ == '__main__':

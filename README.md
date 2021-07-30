@@ -37,11 +37,8 @@ ADK2021
 ├── data
     │── animalpose
             │-- ...
-├── inference_utils
 ├── keypoint_detector
-├── results
 ├── weights
-├── work_dirs
 ├── xtcocoapi
 ```
 
@@ -52,7 +49,7 @@ python keypoint_detector/tools/train.py ${CONFIG_FILE} [optional arguments]
 
 e.g.)  
 ```shell
-python keypoint_detector/tools/train.py keypoint_detector/configs/hrnet_w48_animalpose_256x256.py
+python keypoint_detector/tools/train.py keypoint_detector/configs/hrnet_w48_256x256.py
 ```
 
 Optional arguments are:
@@ -73,14 +70,13 @@ Difference between `resume-from` and `load-from`:
 
 ## Inference
 ```shell
-python main.py
+python keypoint_detector/tools/test.py keypoint_detector/configs/hrnet_w48_256x256.py weights/epoch_210.pth --out out.json
 ```
 
-- `img_root(main.py 11 lines)` : inference image root folder
-- `ann_root(main.py 12 lines)` : inference image's annotation root folder
-- `keypoint_detector_model(main.py 16 lines)` : pretrained weight path
-- `eval_pck(main.py 21 lines)` : if True: evaluate PCK
-- `visualization_result(main.py 22 lines)` : if True: save result images to './results'
+- `--config` : config.py filename
+- `--checkpoint` : checkpoint.pth filename
+- `--eval` : if True: evaluate PCK (default=True)
+- `--out` : result filename (save result to './result')
 
 ## Tensorboard
 - config file에 dict(type='TensorboardLoggerHook') 있는지 확인 후 학습( ex> hrnet_w48_256x256.py 26번째 줄 )

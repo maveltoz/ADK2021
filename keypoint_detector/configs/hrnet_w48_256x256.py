@@ -141,14 +141,29 @@ val_pipeline = [
         ]),
 ]
 
-test_pipeline = val_pipeline
+test_pipeline = [
+    dict(type='LoadImageFromFile'),
+    dict(type='TopDownCustomAffine'),
+    dict(type='ToTensor'),
+    dict(
+        type='NormalizeTensor',
+        mean=[0.485, 0.456, 0.406],
+        std=[0.229, 0.224, 0.225]),
+    dict(
+        type='Collect',
+        keys=['img'],
+        meta_keys=[
+            'image_file', 'center', 'scale', 'rotation', 'bbox_score',
+            'flip_pairs'
+        ]),
+]
 
 data_root = 'data/animalpose'
 data = dict(
     samples_per_gpu=16,
     workers_per_gpu=2,
     val_dataloader=dict(samples_per_gpu=8),
-    test_dataloader=dict(samples_per_gpu=8),
+    test_dataloader=dict(samples_per_gpu=64),
     train=dict(
         type='AnimalPoseDataset',
         ann_file=f'{data_root}/annotations/animalpose_train.json',
@@ -162,9 +177,10 @@ data = dict(
         data_cfg=data_cfg,
         pipeline=val_pipeline),
     test=dict(
-        type='AnimalPoseDataset',
-        ann_file=f'{data_root}/annotations/animalpose_val.json',
-        img_prefix=f'{data_root}/images/',
+        type='CustomDataset',
+        ann_file=None,
+        img_prefix=None,
+        img_root='data/challenge_test_images/',
         data_cfg=data_cfg,
-        pipeline=val_pipeline),
+        pipeline=test_pipeline)
 )
