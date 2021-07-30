@@ -157,16 +157,8 @@ def main():
     outputs = single_gpu_test(model, data_loader)
 
     if args.eval:
-        preds = []
-
-        for output in outputs:
-            for keypoints in output['preds']:
-                preds.append(np.array(keypoints)[:, :-1])
-
-        preds = np.array(preds)
         ann_root = 'data/challenge_test_annotations/'
-
-        result = get_pck_json(preds, ann_root)
+        result = dataset.evaluate(outputs, ann_root)
         print('\n=> evaluation pck result:')
         print(result)
 
