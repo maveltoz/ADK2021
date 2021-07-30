@@ -4,14 +4,12 @@ from collections import OrderedDict, defaultdict
 
 import json_tricks as json
 import numpy as np
-from xtcocotools.coco import COCO
 from xtcocotools.cocoeval import COCOeval
 
 from ....core.post_processing import oks_nms, soft_oks_nms
 from ...builder import DATASETS
 from .animal_base_dataset import AnimalBaseDataset
 from PIL import Image
-from mmpose.core import keypoint_pck_accuracy
 
 
 @DATASETS.register_module()
@@ -62,8 +60,8 @@ class CustomDataset(AnimalBaseDataset):
 
         self.db = self._get_db()
 
-        # print(f'=> num_images: {self.num_images}')
-        # print(f'=> load {len(self.db)} samples')
+        print(f'=> num_images: {self.num_images}')
+        print(f'=> load {len(self.db)} samples')
 
     def _get_db(self):
         """Load dataset."""
