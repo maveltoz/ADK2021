@@ -4,7 +4,8 @@ resume_from = None
 dist_params = dict(backend='nccl')
 workflow = [('train', 1)]
 checkpoint_config = dict(interval=10)
-evaluation = dict(interval=10, metric='mAP', key_indicator='AP')
+evaluation = dict(interval=10, metric='PCK', key_indicator='PCK')
+# evaluation = dict(interval=10, metric='mAP', key_indicator='AP')
 
 optimizer = dict(
     type='Adam',
@@ -18,7 +19,7 @@ lr_config = dict(
     warmup_iters=500,
     warmup_ratio=0.001,
     step=[170, 200])
-total_epochs = 1
+total_epochs = 30
 log_config = dict(
     interval=1,
     hooks=[
@@ -162,7 +163,7 @@ data_root = 'data/animalpose'
 data = dict(
     samples_per_gpu=16,
     workers_per_gpu=2,
-    val_dataloader=dict(samples_per_gpu=8),
+    val_dataloader=dict(samples_per_gpu=16),
     test_dataloader=dict(samples_per_gpu=64),
     train=dict(
         type='AnimalPoseDataset',
