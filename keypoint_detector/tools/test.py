@@ -12,8 +12,6 @@ from mmcv.runner import load_checkpoint
 from mmpose.apis import single_gpu_test
 from mmpose.datasets import build_dataloader, build_dataset
 from mmpose.models import build_posenet
-from mmpose.core import keypoint_pck_accuracy
-import json
 
 
 try:
@@ -70,53 +68,6 @@ def merge_configs(cfg1, cfg2):
             cfg1[k] = v
     return cfg1
 
-
-def get_pck_json(preds, ann_root='data/test/challenge_annotations/'):
-    preds = np.array(preds)
-    gts = []
-    masks = []
-    thr = 0.2
-    normalize = []
-
-    entries = os.listdir(ann_root)
-    entries.sort()
-
-    for entry in entries:
-        with open(ann_root + entry) as annotation_file:
-            annotation = json.load(annotation_file)['label_info']
-
-            w = int(annotation['image']['width'])
-            h = int(annotation['image']['height'])
-            bbox_thr = np.max([w, h])
-            normalize.append([bbox_thr, bbox_thr])
-
-            now_gt = []
-            now_mask = []
-
-            for k in range(17):
-                x = annotation['annotations'][0]['keypoints'][3 * k]
-                y = annotation['annotations'][0]['keypoints'][3 * k + 1]
-                z = annotation['annotations'][0]['keypoints'][3 * k + 2]
-                gt = [x, y]
-                now_gt.append(gt)
-                if z == 2:
-                    mask = True
-                else:
-                    mask = True
-                    # mask = False
-                now_mask.append(mask)
-            gts.append(now_gt)
-            masks.append(now_mask)
-
-    gts = np.array(gts)
-    masks = np.array(masks)
-    normalize = np.array(normalize)
-
-    pck = keypoint_pck_accuracy(preds, gts, masks, thr, normalize)
-
-    return pck
-
-
 def main():
     args = parse_args()
 
@@ -158,7 +109,7 @@ def main():
 
     if args.eval:
         ann_root = 'data/challenge_test_annotations/'
-        
+
         result = dataset.evaluate(outputs, ann_root)
         print('\n=> evaluation pck result:')
         print(result)
