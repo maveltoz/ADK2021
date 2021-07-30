@@ -158,6 +158,7 @@ def main():
 
     if args.eval:
         ann_root = 'data/challenge_test_annotations/'
+        
         result = dataset.evaluate(outputs, ann_root)
         print('\n=> evaluation pck result:')
         print(result)
