@@ -3,8 +3,8 @@ from .pipelines import Compose
 from .samplers import DistributedSampler
 
 from .datasets import (  # isort:skip
-    AnimalPoseDataset, TopDownCocoDataset)
+    AnimalPoseDataset, TopDownCocoDataset, CustomDataset)
 
 __all__ = [
-    'TopDownCocoDataset', 'AnimalPoseDataset'
+    'TopDownCocoDataset', 'AnimalPoseDataset', 'CustomDataset'
 ]
