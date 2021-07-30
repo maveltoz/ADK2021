@@ -14,7 +14,6 @@ from mmpose.datasets import build_dataloader, build_dataset
 from mmpose.models import build_posenet
 from mmpose.core import keypoint_pck_accuracy
 import json
-import time
 
 
 try:
@@ -119,8 +118,6 @@ def get_pck_json(preds, ann_root='data/test/challenge_annotations/'):
 
 
 def main():
-    start = time.time()
-
     args = parse_args()
 
     cfg = Config.fromfile(args.config)
@@ -180,8 +177,6 @@ def main():
 
         print(f'\nwriting results to {args.out}')
         mmcv.dump(outputs, out_file_path + '/' + args.out)
-
-    print('time : ', time.time() - start)
 
 
 if __name__ == '__main__':
