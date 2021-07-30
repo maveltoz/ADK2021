@@ -11,6 +11,8 @@ from ....core.post_processing import oks_nms, soft_oks_nms
 from ...builder import DATASETS
 from .animal_base_dataset import AnimalBaseDataset
 
+from mmpose.core.evaluation.top_down_eval import keypoint_pck_accuracy
+
 
 @DATASETS.register_module()
 class AnimalPoseDataset(AnimalBaseDataset):
@@ -201,42 +203,37 @@ class AnimalPoseDataset(AnimalBaseDataset):
 
         return rec
 
-    def evaluate(self, outputs, res_folder, metric='mAP', **kwargs):
-        """Evaluate coco keypoint results. The pose prediction results will be
-        saved in `${res_folder}/result_keypoints.json`.
-
+    def evaluate(self, outputs, res_folder, metric='PCK', **kwargs):
+        """Evaluate horse-10 keypoint results. The pose prediction results will
+        be saved in `${res_folder}/result_keypoints.json`.
         Note:
             batch_size: N
             num_keypoints: K
             heatmap height: H
             heatmap width: W
-
         Args:
-            outputs (list(dict))
+            outputs (list(preds, boxes, image_path, output_heatmap))
                 :preds (np.ndarray[N,K,3]): The first two dimensions are
                     coordinates, score is the third dimension of the array.
                 :boxes (np.ndarray[N,6]): [center[0], center[1], scale[0]
                     , scale[1],area, score]
-                :image_paths (list[str]): For example, ['data/coco/val2017
-                    /000000393226.jpg']
-                :heatmap (np.ndarray[N, K, H, W]): model output heatmap
-                :bbox_id (list(int)).
+                :image_paths (list[str]): For example, ['Test/source/0.jpg']
+                :output_heatmap (np.ndarray[N, K, H, W]): model outpus.
             res_folder (str): Path of directory to save the results.
-            metric (str | list[str]): Metric to be performed. Defaults: 'mAP'.
-
+            metric (str | list[str]): Metric to be performed.
+                Options: 'PCK', 'NME'.
         Returns:
             dict: Evaluation results for evaluation metric.
         """
         metrics = metric if isinstance(metric, list) else [metric]
-        allowed_metrics = ['mAP']
+        allowed_metrics = ['PCK', 'NME']
         for metric in metrics:
             if metric not in allowed_metrics:
                 raise KeyError(f'metric {metric} is not supported')
 
         res_file = os.path.join(res_folder, 'result_keypoints.json')
 
-        kpts = defaultdict(list)
-
+        kpts = []
         for output in outputs:
             preds = output['preds']
             boxes = output['boxes']
@@ -246,48 +243,21 @@ class AnimalPoseDataset(AnimalBaseDataset):
             batch_size = len(image_paths)
             for i in range(batch_size):
                 image_id = self.name2id[image_paths[i][len(self.img_prefix):]]
-                kpts[image_id].append({
-                    'keypoints': preds[i],
-                    'center': boxes[i][0:2],
-                    'scale': boxes[i][2:4],
-                    'area': boxes[i][4],
-                    'score': boxes[i][5],
+
+                kpts.append({
+                    'keypoints': preds[i].tolist(),
+                    'center': boxes[i][0:2].tolist(),
+                    'scale': boxes[i][2:4].tolist(),
+                    'area': float(boxes[i][4]),
+                    'score': float(boxes[i][5]),
                     'image_id': image_id,
                     'bbox_id': bbox_ids[i]
                 })
-        kpts = self._sort_and_unique_bboxes(kpts)
 
-        # rescoring and oks nms
-        num_joints = self.ann_info['num_joints']
-        vis_thr = self.vis_thr
-        oks_thr = self.oks_thr
-        valid_kpts = []
-        for image_id in kpts.keys():
-            img_kpts = kpts[image_id]
-            for n_p in img_kpts:
-                box_score = n_p['score']
-                kpt_score = 0
-                valid_num = 0
-                for n_jt in range(0, num_joints):
-                    t_s = n_p['keypoints'][n_jt][2]
-                    if t_s > vis_thr:
-                        kpt_score = kpt_score + t_s
-                        valid_num = valid_num + 1
-                if valid_num != 0:
-                    kpt_score = kpt_score / valid_num
-                # rescoring
-                n_p['score'] = kpt_score * box_score
+        # kpts = self._sort_and_unique_bboxes(kpts)
 
-            if self.use_nms:
-                nms = soft_oks_nms if self.soft_nms else oks_nms
-                keep = nms(list(img_kpts), oks_thr, sigmas=self.sigmas)
-                valid_kpts.append([img_kpts[_keep] for _keep in keep])
-            else:
-                valid_kpts.append(img_kpts)
-
-        self._write_coco_keypoint_results(valid_kpts, res_file)
-
-        info_str = self._do_python_keypoint_eval(res_file)
+        self._write_keypoint_results(kpts, res_file)
+        info_str = self._report_metric(res_file, metrics)
         name_value = OrderedDict(info_str)
 
         return name_value
@@ -336,31 +306,54 @@ class AnimalPoseDataset(AnimalBaseDataset):
 
         return cat_results
 
-    def _do_python_keypoint_eval(self, res_file):
-        """Keypoint evaluation using COCOAPI."""
-        coco_det = self.coco.loadRes(res_file)
-        coco_eval = COCOeval(self.coco, coco_det, 'keypoints', self.sigmas, use_area=False)
-        coco_eval.params.useSegm = None
-        coco_eval.evaluate()
-        coco_eval.accumulate()
-        coco_eval.summarize()
+    def _get_normalize_factor(self, gts):
+        """Get inter-ocular distance as the normalize factor, measured as the
+        Euclidean distance between the outer corners of the eyes.
+        Args:
+            gts (np.ndarray[N, K, 2]): Groundtruth keypoint location.
+        Return:
+            np.ndarray[N, 2]: normalized factor
+        """
 
-        stats_names = [
-            'AP', 'AP .5', 'AP .75', 'AP (M)', 'AP (L)', 'AR', 'AR .5',
-            'AR .75', 'AR (M)', 'AR (L)'
-        ]
+        interocular = np.linalg.norm(
+            gts[:, 0, :] - gts[:, 1, :], axis=1, keepdims=True)
+        return np.tile(interocular, [1, 2])
 
-        info_str = list(zip(stats_names, coco_eval.stats))
+    def _report_metric(self, res_file, metrics, pck_thr=0.2):
+        """Keypoint evaluation.
+        Args:
+            res_file (str): Json file stored prediction results.
+            metrics (str | list[str]): Metric to be performed.
+                Options: 'PCK', 'NME'.
+            pck_thr (float): PCK threshold, default: 0.3.
+        Returns:
+            dict: Evaluation results for evaluation metric.
+        """
+        info_str = []
+
+        with open(res_file, 'r') as fin:
+            preds = json.load(fin)
+
+        assert len(preds) == len(self.db)
+
+        outputs = []
+        gts = []
+        masks = []
+
+        for pred, item in zip(preds, self.db):
+            outputs.append(np.array(pred['keypoints'])[:, :-1])
+            gts.append(np.array(item['joints_3d'])[:, :-1])
+            masks.append((np.array(item['joints_3d_visible'])[:, 0]) > 0)
+
+        outputs = np.array(outputs)
+        gts = np.array(gts)
+        masks = np.array(masks)
+
+        normalize_factor = self._get_normalize_factor(gts)
+
+        if 'PCK' in metrics:
+            _, pck, _ = keypoint_pck_accuracy(outputs, gts, masks, pck_thr,
+                                              normalize_factor)
+            info_str.append(('PCK', pck))
 
         return info_str
-
-    def _sort_and_unique_bboxes(self, kpts, key='bbox_id'):
-        """sort kpts and remove the repeated ones."""
-        for img_id, persons in kpts.items():
-            num = len(persons)
-            kpts[img_id] = sorted(kpts[img_id], key=lambda x: x[key])
-            for i in range(num - 1, 0, -1):
-                if kpts[img_id][i][key] == kpts[img_id][i - 1][key]:
-                    del kpts[img_id][i]
-
-        return kpts
