@@ -10,6 +10,7 @@ from ....core.post_processing import oks_nms, soft_oks_nms
 from ...builder import DATASETS
 from .animal_base_dataset import AnimalBaseDataset
 from PIL import Image
+from mmpose.core import keypoint_pck_accuracy
 
 
 @DATASETS.register_module()
@@ -122,155 +123,18 @@ class CustomDataset(AnimalBaseDataset):
 
         return rec
 
-    def evaluate(self, outputs, res_folder, metric='mAP', **kwargs):
-        """Evaluate coco keypoint results. The pose prediction results will be
-        saved in `${res_folder}/result_keypoints.json`.
-        Note:
-            batch_size: N
-            num_keypoints: K
-            heatmap height: H
-            heatmap width: W
-        Args:
-            outputs (list(dict))
-                :preds (np.ndarray[N,K,3]): The first two dimensions are
-                    coordinates, score is the third dimension of the array.
-                :boxes (np.ndarray[N,6]): [center[0], center[1], scale[0]
-                    , scale[1],area, score]
-                :image_paths (list[str]): For example, ['data/coco/val2017
-                    /000000393226.jpg']
-                :heatmap (np.ndarray[N, K, H, W]): model output heatmap
-                :bbox_id (list(int)).
-            res_folder (str): Path of directory to save the results.
-            metric (str | list[str]): Metric to be performed. Defaults: 'mAP'.
-        Returns:
-            dict: Evaluation results for evaluation metric.
-        """
-        metrics = metric if isinstance(metric, list) else [metric]
-        allowed_metrics = ['mAP']
-        for metric in metrics:
-            if metric not in allowed_metrics:
-                raise KeyError(f'metric {metric} is not supported')
-
-        res_file = os.path.join(res_folder, 'result_keypoints.json')
-
-        kpts = defaultdict(list)
+    def evaluate(self, outputs, ann_root='data/challenge_test_annotations/'):
+        preds = []
 
         for output in outputs:
-            preds = output['preds']
-            boxes = output['boxes']
-            image_paths = output['image_paths']
-            bbox_ids = output['bbox_ids']
+            for keypoints in output['preds']:
+                preds.append(np.array(keypoints)[:, :-1])
 
-            batch_size = len(image_paths)
-            for i in range(batch_size):
-                image_id = self.name2id[image_paths[i][len(self.img_prefix):]]
-                kpts[image_id].append({
-                    'keypoints': preds[i],
-                    'center': boxes[i][0:2],
-                    'scale': boxes[i][2:4],
-                    'area': boxes[i][4],
-                    'score': boxes[i][5],
-                    'image_id': image_id,
-                    'bbox_id': bbox_ids[i]
-                })
-        kpts = self._sort_and_unique_bboxes(kpts)
+        preds = np.array(preds)
 
-        # rescoring and oks nms
-        num_joints = self.ann_info['num_joints']
-        vis_thr = self.vis_thr
-        oks_thr = self.oks_thr
-        valid_kpts = []
-        for image_id in kpts.keys():
-            img_kpts = kpts[image_id]
-            for n_p in img_kpts:
-                box_score = n_p['score']
-                kpt_score = 0
-                valid_num = 0
-                for n_jt in range(0, num_joints):
-                    t_s = n_p['keypoints'][n_jt][2]
-                    if t_s > vis_thr:
-                        kpt_score = kpt_score + t_s
-                        valid_num = valid_num + 1
-                if valid_num != 0:
-                    kpt_score = kpt_score / valid_num
-                # rescoring
-                n_p['score'] = kpt_score * box_score
+        result = self.get_pck_json(preds, ann_root)
 
-            if self.use_nms:
-                nms = soft_oks_nms if self.soft_nms else oks_nms
-                keep = nms(list(img_kpts), oks_thr, sigmas=self.sigmas)
-                valid_kpts.append([img_kpts[_keep] for _keep in keep])
-            else:
-                valid_kpts.append(img_kpts)
-
-        self._write_coco_keypoint_results(valid_kpts, res_file)
-
-        info_str = self._do_python_keypoint_eval(res_file)
-        name_value = OrderedDict(info_str)
-
-        return name_value
-
-    def _write_coco_keypoint_results(self, keypoints, res_file):
-        """Write results into a json file."""
-        data_pack = [{
-            'cat_id': self._class_to_coco_ind[cls],
-            'cls_ind': cls_ind,
-            'cls': cls,
-            'ann_type': 'keypoints',
-            'keypoints': keypoints
-        } for cls_ind, cls in enumerate(self.classes)
-                     if not cls == '__background__']
-
-        results = self._coco_keypoint_results_one_category_kernel(data_pack[0])
-
-        with open(res_file, 'w') as f:
-            json.dump(results, f, sort_keys=True, indent=4)
-
-    def _coco_keypoint_results_one_category_kernel(self, data_pack):
-        """Get coco keypoint results."""
-        cat_id = data_pack['cat_id']
-        keypoints = data_pack['keypoints']
-        cat_results = []
-
-        for img_kpts in keypoints:
-            if len(img_kpts) == 0:
-                continue
-
-            _key_points = np.array(
-                [img_kpt['keypoints'] for img_kpt in img_kpts])
-            key_points = _key_points.reshape(-1,
-                                             self.ann_info['num_joints'] * 3)
-
-            result = [{
-                'image_id': img_kpt['image_id'],
-                'category_id': cat_id,
-                'keypoints': key_point.tolist(),
-                'score': float(img_kpt['score']),
-                'center': img_kpt['center'].tolist(),
-                'scale': img_kpt['scale'].tolist()
-            } for img_kpt, key_point in zip(img_kpts, key_points)]
-
-            cat_results.extend(result)
-
-        return cat_results
-
-    def _do_python_keypoint_eval(self, res_file):
-        """Keypoint evaluation using COCOAPI."""
-        coco_det = self.coco.loadRes(res_file)
-        coco_eval = COCOeval(self.coco, coco_det, 'keypoints', self.sigmas, use_area=False)
-        coco_eval.params.useSegm = None
-        coco_eval.evaluate()
-        coco_eval.accumulate()
-        coco_eval.summarize()
-
-        stats_names = [
-            'AP', 'AP .5', 'AP .75', 'AP (M)', 'AP (L)', 'AR', 'AR .5',
-            'AR .75', 'AR (M)', 'AR (L)'
-        ]
-
-        info_str = list(zip(stats_names, coco_eval.stats))
-
-        return info_str
+        return result
 
     def _sort_and_unique_bboxes(self, kpts, key='bbox_id'):
         """sort kpts and remove the repeated ones."""
@@ -282,3 +146,48 @@ class CustomDataset(AnimalBaseDataset):
                     del kpts[img_id][i]
 
         return kpts
+
+    def get_pck_json(self, preds, ann_root='data/test/challenge_annotations/'):
+        preds = np.array(preds)
+        gts = []
+        masks = []
+        thr = 0.2
+        normalize = []
+
+        entries = os.listdir(ann_root)
+        entries.sort()
+
+        for entry in entries:
+            with open(ann_root + entry) as annotation_file:
+                annotation = json.load(annotation_file)['label_info']
+
+                w = int(annotation['image']['width'])
+                h = int(annotation['image']['height'])
+                bbox_thr = np.max([w, h])
+                normalize.append([bbox_thr, bbox_thr])
+
+                now_gt = []
+                now_mask = []
+
+                for k in range(17):
+                    x = annotation['annotations'][0]['keypoints'][3 * k]
+                    y = annotation['annotations'][0]['keypoints'][3 * k + 1]
+                    z = annotation['annotations'][0]['keypoints'][3 * k + 2]
+                    gt = [x, y]
+                    now_gt.append(gt)
+                    if z == 2:
+                        mask = True
+                    else:
+                        mask = True
+                        # mask = False
+                    now_mask.append(mask)
+                gts.append(now_gt)
+                masks.append(now_mask)
+
+        gts = np.array(gts)
+        masks = np.array(masks)
+        normalize = np.array(normalize)
+
+        pck = keypoint_pck_accuracy(preds, gts, masks, thr, normalize)
+
+        return pck
