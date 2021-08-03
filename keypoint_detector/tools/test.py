@@ -12,8 +12,6 @@ from mmcv.runner import load_checkpoint
 from mmpose.apis import single_gpu_test
 from mmpose.datasets import build_dataloader, build_dataset
 from mmpose.models import build_posenet
-from mmpose.core import keypoint_pck_accuracy
-import json
 
 
 try:
