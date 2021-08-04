@@ -44,12 +44,12 @@ ADK2021
 
 ## Training
 ```shell
-python keypoint_detector/tools/train.py ${CONFIG_FILE} [optional arguments]  
+python tools/train.py ${CONFIG_FILE} [optional arguments]  
 ```
 
 e.g.)  
 ```shell
-python keypoint_detector/tools/train.py keypoint_detector/configs/hrnet_w48_256x256.py
+python tools/train.py configs/hrnet.py
 ```
 
 Optional arguments are:
@@ -70,7 +70,7 @@ Difference between `resume-from` and `load-from`:
 
 ## Inference
 ```shell
-python keypoint_detector/tools/test.py keypoint_detector/configs/hrnet_w48_256x256.py weights/epoch_210.pth --out out.json
+python tools/test.py configs/hrnet.py weights/best.pth --out out.json
 ```
 
 - `--config` : config.py filename
