@@ -4,7 +4,6 @@ import warnings
 
 import mmcv
 import torch
-import numpy as np
 from mmcv import Config, DictAction
 from mmcv.parallel import MMDataParallel
 from mmcv.runner import load_checkpoint
