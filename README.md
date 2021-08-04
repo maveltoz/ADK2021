@@ -68,6 +68,9 @@ Difference between `resume-from` and `load-from`:
 `resume-from` loads both the model weights and optimizer status, and the epoch is also inherited from the specified checkpoint. It is usually used for resuming the training process that is interrupted accidentally.
 `load-from` only loads the model weights and the training epoch starts from 0. It is usually used for finetuning.
 
+## Pretrain Weight
+https://drive.google.com/file/d/1H5LoUbjD8AYBs5pZn2HR4i78NcyGmk8a/view?usp=sharing
+
 ## Inference
 ```shell
 python tools/test.py configs/hrnet.py weights/best.pth --out out.json
