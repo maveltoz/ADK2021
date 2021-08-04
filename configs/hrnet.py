@@ -108,15 +108,6 @@ train_pipeline = [
         prob_half_body=0.3),
     dict(
         type='TopDownGetRandomScaleRotation', rot_factor=40, scale_factor=0.5),
-    dict(
-        type='Albumentation',
-        transforms=[
-            dict(
-                type='RandomBrightnessContrast'),
-            dict(
-                type='RandomGamma')
-        ]
-    ),
     dict(type='TopDownAffine'),
     dict(type='ToTensor'),
     dict(
