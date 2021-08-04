@@ -34,10 +34,12 @@ Nas -> root -> 연구원자료 -> 김대훈 -> ADK2021 -> epoch_210.pth 다운�
 
 ```text
 ADK2021
+├── configs
 ├── data
     │── animalpose
             │-- ...
 ├── keypoint_detector
+├── tools
 ├── weights
 ├── xtcocoapi
 ```
