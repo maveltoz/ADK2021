@@ -153,8 +153,8 @@ def main():
         datasets,
         cfg,
         distributed=distributed,
-        validate=False,
-        # validate=True,
+#         validate=False,
+        validate=True,
         timestamp=timestamp,
         meta=meta)
 
