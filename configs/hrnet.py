@@ -4,7 +4,7 @@ resume_from = None
 dist_params = dict(backend='nccl')
 workflow = [('train', 1)]
 checkpoint_config = dict(interval=10)
-# evaluation = dict(interval=10, metric='mAP', key_indicator='AP')
+evaluation = dict(interval=10, metric='mAP', key_indicator='AP')
 
 optimizer = dict(
     type='Adam',
@@ -23,7 +23,7 @@ log_config = dict(
     interval=1,
     hooks=[
         dict(type='TextLoggerHook'),
-        # dict(type='TensorboardLoggerHook')
+        dict(type='TensorboardLoggerHook')
     ])
 
 channel_cfg = dict(
@@ -175,7 +175,7 @@ data = dict(
     test_dataloader=dict(samples_per_gpu=64),
     train=dict(
         type='AnimalPoseDataset',
-        ann_file=f'{data_root}/annotations/animalpose_train_8000.json',
+        ann_file=f'{data_root}/annotations/animalpose_train.json',
         img_prefix=f'{data_root}/images/',
         data_cfg=data_cfg,
         pipeline=train_pipeline),
