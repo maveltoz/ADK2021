@@ -11,6 +11,7 @@ from mmcv.runner import load_checkpoint
 from mmpose.apis import single_gpu_test
 from mmpose.datasets import build_dataloader, build_dataset
 from mmpose.models import build_posenet
+import time
 
 
 try:
@@ -26,7 +27,7 @@ def parse_args():
     parser.add_argument('config', help='test config file path')
     parser.add_argument('checkpoint', help='checkpoint file')
     parser.add_argument('--eval', help='output result file', default=True)
-    parser.add_argument('--out', help='output result file')
+    parser.add_argument('--out', help='output result file', default='submission.json')
     parser.add_argument(
         '--fuse-conv-bn',
         action='store_true',
@@ -68,6 +69,8 @@ def merge_configs(cfg1, cfg2):
     return cfg1
 
 def main():
+    start = time.time()
+
     args = parse_args()
 
     cfg = Config.fromfile(args.config)
@@ -114,12 +117,38 @@ def main():
         print(result)
 
     if args.out:
-        out_file_path = "./result"
+        submission = {}
+        submission['latency'] = 0
+        submission['annotations'] = []
+
+        joint_self = []
+        img_path = []
+
+        for output in outputs:
+            for preds in output['preds']:
+                joint_self.append(preds[:, :-1])
+            for image_paths in output['image_paths']:
+                img_path.append(image_paths)
+
+        assert len(joint_self) == len(img_path)
+
+        for i in range(len(img_path)):
+            sub = {}
+            sub['ID'] = i
+            sub['img_path'] = img_path[i]
+            sub['joint_self'] = joint_self[i]
+
+            submission['annotations'].append(sub)
+
+        submission['latency'] = time.time() - start
+
+        out_file_path = "./submit_file"
         if not os.path.isdir(out_file_path):
             os.mkdir(out_file_path)
 
-        print(f'\nwriting results to {args.out}')
-        mmcv.dump(outputs, out_file_path + '/' + args.out)
+        # print(f'\nwriting results to {args.out}')
+        # mmcv.dump(outputs, out_file_path + '/' + args.out)
+        mmcv.dump(submission, out_file_path + '/' + args.out)
 
 
 if __name__ == '__main__':
