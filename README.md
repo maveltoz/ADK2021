@@ -34,22 +34,24 @@ Nas -> root -> 연구원자료 -> 김대훈 -> ADK2021 -> epoch_210.pth 다운�
 
 ```text
 ADK2021
+├── configs
 ├── data
     │── animalpose
             │-- ...
 ├── keypoint_detector
+├── tools
 ├── weights
 ├── xtcocoapi
 ```
 
 ## Training
 ```shell
-python keypoint_detector/tools/train.py ${CONFIG_FILE} [optional arguments]  
+python tools/train.py ${CONFIG_FILE} [optional arguments]  
 ```
 
 e.g.)  
 ```shell
-python keypoint_detector/tools/train.py keypoint_detector/configs/hrnet_w48_256x256.py
+python tools/train.py configs/hrnet.py
 ```
 
 Optional arguments are:
@@ -68,9 +70,12 @@ Difference between `resume-from` and `load-from`:
 `resume-from` loads both the model weights and optimizer status, and the epoch is also inherited from the specified checkpoint. It is usually used for resuming the training process that is interrupted accidentally.
 `load-from` only loads the model weights and the training epoch starts from 0. It is usually used for finetuning.
 
+## Pretrain Weight
+https://drive.google.com/file/d/1H5LoUbjD8AYBs5pZn2HR4i78NcyGmk8a/view?usp=sharing
+
 ## Inference
 ```shell
-python keypoint_detector/tools/test.py keypoint_detector/configs/hrnet_w48_256x256.py weights/epoch_210.pth --out out.json
+python tools/test.py configs/hrnet.py weights/best.pth --out out.json
 ```
 
 - `--config` : config.py filename

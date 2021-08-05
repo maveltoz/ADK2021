@@ -120,13 +120,6 @@ def main():
     # init the meta dict to record some important information such as
     # environment info and seed, which will be logged
     meta = dict()
-    # log env info
-    # env_info_dict = collect_env()
-    # env_info = '\n'.join([(f'{k}: {v}') for k, v in env_info_dict.items()])
-    # dash_line = '-' * 60 + '\n'
-    # logger.info('Environment info:\n' + dash_line + env_info + '\n' +
-    #             dash_line)
-    # meta['env_info'] = env_info
 
     # log some basic info
     logger.info(f'Distributed training: {distributed}')
@@ -160,8 +153,8 @@ def main():
         datasets,
         cfg,
         distributed=distributed,
+#         validate=False,
         validate=True,
-        # validate=(not args.no_validate),
         timestamp=timestamp,
         meta=meta)
 
