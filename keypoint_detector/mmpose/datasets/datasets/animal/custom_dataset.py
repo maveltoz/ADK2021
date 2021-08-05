@@ -151,7 +151,7 @@ class CustomDataset(AnimalBaseDataset):
         preds = np.array(preds)
         gts = []
         masks = []
-        thr = 0.2
+        thr = 0.35
         normalize = []
 
         entries = os.listdir(ann_root)
