@@ -3,6 +3,7 @@ from collections import OrderedDict
 from tqdm import tqdm
 import argparse
 
+
 def main():
     json_dir = "./data/animalpose/annotations/"
     result_dir = "./data/animalpose/annotations_/"
