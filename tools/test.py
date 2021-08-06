@@ -109,12 +109,8 @@ def main():
     model = MMDataParallel(model, device_ids=[0])
     outputs = single_gpu_test(model, data_loader)
 
-    if args.eval:
-        ann_root = 'data/challenge_test_annotations/'
-
-        result = dataset.evaluate(outputs, ann_root)
-        print('\n=> evaluation pck result:')
-        print(result)
+    bbox = dataset.get_bbox()
+    pred_idx = 0
 
     if args.out:
         submission = {}
@@ -126,7 +122,18 @@ def main():
 
         for output in outputs:
             for preds in output['preds']:
+                for pred in preds:
+                    if pred[0] < 0:
+                        pred[0] = 0
+                    if pred[1] < 0:
+                        pred[1] = 0
+                    if pred[0] > bbox[pred_idx][0]:
+                        pred[0] = bbox[pred_idx][0]
+                    if pred[1] > bbox[pred_idx][1]:
+                        pred[1] = bbox[pred_idx][1]
+
                 joint_self.append(preds[:, :-1])
+                pred_idx += 1
             for image_paths in output['image_paths']:
                 img_path.append(image_paths)
 
@@ -149,6 +156,13 @@ def main():
         # print(f'\nwriting results to {args.out}')
         # mmcv.dump(outputs, out_file_path + '/' + args.out)
         mmcv.dump(submission, out_file_path + '/' + args.out)
+
+    if args.eval:
+        ann_root = 'data/challenge_test_annotations/'
+
+        result = dataset.evaluate(outputs, ann_root)
+        print('\n=> evaluation pck result:')
+        print(result)
 
 
 if __name__ == '__main__':
