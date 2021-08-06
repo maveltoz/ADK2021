@@ -169,6 +169,14 @@ class CustomDataset(AnimalBaseDataset):
                 h = int(annotation['image']['height'])
                 bbox_thr = np.max([w, h])
                 normalize.append([bbox_thr, bbox_thr])
+                
+                # kpt1_x = int(annotation['annotations'][0]['keypoints'][6])
+                # kpt1_y = int(annotation['annotations'][0]['keypoints'][7])
+                # kpt2_x = int(annotation['annotations'][0]['keypoints'][27])
+                # kpt2_y = int(annotation['annotations'][0]['keypoints'][28])
+                # bbox_thr_1 = np.max([kpt1_x, kpt1_y])
+                # bbox_thr_2 = np.max([kpt2_x, kpt2_y])
+                # normalize.append([bbox_thr_1, bbox_thr_2])
 
                 now_gt = []
                 now_mask = []
