@@ -57,6 +57,8 @@ class CustomDataset(AnimalBaseDataset):
             .35, 1.0, 1.0, 1.07, .87, .89, 1.07, .87, .89, 1.0, 1.07, .87, .89, 1.07, .87, .89, 1.0
         ]) / 10.0
 
+        self.bbox = []
+
         self.dataset_name = 'animalpose'
 
         self.db = self._get_db()
@@ -96,6 +98,8 @@ class CustomDataset(AnimalBaseDataset):
         height = img.size[1]
 
         x, y, w, h = (0, 0, width, height)
+
+        self.bbox.append([w, h])
 
         x1 = max(0, x)
         y1 = max(0, y)
@@ -191,3 +195,6 @@ class CustomDataset(AnimalBaseDataset):
         pck = keypoint_pck_accuracy(preds, gts, masks, thr, normalize)
 
         return pck
+
+    def get_bbox(self):
+        return self.bbox
