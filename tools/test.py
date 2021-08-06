@@ -142,7 +142,8 @@ def main():
         for i in range(len(img_path)):
             sub = {}
             sub['ID'] = i + 1
-            sub['img_path'] = img_path[i]
+            sub['img_path'] = img_path[i].split('/')[-1]
+#             sub['img_path'] = img_path[i]
             sub['joint_self'] = joint_self[i]
 
             submission['annotations'].append(sub)
