@@ -23,7 +23,8 @@ ${PROJECT}
 
 ## 주요 코드 설명
 - ./configs/hrnet.py : 학습 및 추론에 필요한 설정
-- ./preprocessing_data.py : 제공된 train dataset annotation을 코드에 맞는 형식으로 변경(새로운 annotation이 ./DATA/train/annotations/animalpose_train.json으로 저장됨)
+- ./preprocessing_data.py : 제공된 train dataset annotation을 코드에 맞는 형식으로 변경  
+(새로운 annotation이 ./DATA/train/annotations/animalpose_train.json으로 저장됨)
 - ./tools/train.py : 학습을 실행하는 코드
 - ./tools/test.py : 추론을 실행하는 코드
 - ./keypoint_detector/mmpose/apis/train.py : 키포인트를 학습하는 코드
