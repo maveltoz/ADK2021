@@ -1,23 +1,23 @@
-${PROJECT} 
-|-- configs 
-|    |-- hrnet.py 
-|-- keypoint_detector 
-|    |-- mmpose
-|    |    |-- heatmap_focal_loss.py 
-|-- tools 
-|    |-- autoanchor.py 
-|    |-- datasets.py 
-|    |-- general.py 
-|    |-- google_utils.py 
-|    |-- metrics.py 
-|    |-- plots.py 
-|    |-- torch_utils.py 
-|-- README.md 
-|-- submit.py 
-|-- train.py 
-|-- util.py 
-|-- outputs 
-|    |-- model_final.pth 
+${PROJECT}  
+|-- configs  
+|    |-- hrnet.py  
+|-- keypoint_detector  
+|    |-- mmpose  
+|    |    |-- heatmap_focal_loss.py  
+|-- tools  
+|    |-- autoanchor.py  
+|    |-- datasets.py  
+|    |-- general.py  
+|    |-- google_utils.py  
+|    |-- metrics.py  
+|    |-- plots.py  
+|    |-- torch_utils.py  
+|-- README.md  
+|-- submit.py  
+|-- train.py  
+|-- util.py  
+|-- outputs  
+|    |-- model_final.pth  
 |    |-- result.json \
 
 
