@@ -111,6 +111,39 @@ train_pipeline = [
         prob_half_body=0.3),
     dict(
         type='TopDownGetRandomScaleRotation', rot_factor=40, scale_factor=0.5),
+    dict(
+        type='Albumentation',
+        transforms=[
+            dict(
+                type='OneOf',
+                transforms=[
+                    dict(type='Blur', p=1.0),
+                    dict(type='GaussianBlur', p=1.0),
+                    dict(type='ISONoise', p=1.0),
+                    dict(type='MedianBlur', p=1.0),
+                    dict(type='MultiplicativeNoise', p=1.0)
+                ],
+                p=0.5),
+            dict(
+                type='OneOf',
+                transforms=[
+                    dict(type='ColorJitter', p=1.0),
+                    dict(type='ChannelShuffle', p=1.0),
+                    dict(type='HueSaturationValue', p=1.0),
+                    dict(type='RGBShift', p=1.0),
+                    dict(type='HueSaturationValue', p=1.0),
+                    # dict(type='InvertImg', p=1.0),
+                ],
+                p=0.5),
+            dict(
+                type='OneOf',
+                transforms=[
+                    dict(type='RandomBrightnessContrast', p=1.0),
+                    dict(type='RandomGamma', p=1.0)
+                ],
+                p=0.5)
+        ]
+    ),
     dict(type='TopDownAffine'),
     dict(type='ToTensor'),
     dict(
