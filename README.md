@@ -29,7 +29,7 @@ ADK2021 Dataset(save to './data')
 
 b. Weight Preparation  
 Pretrain Weight(save to './weights')  
-https://drive.google.com/file/d/1H5LoUbjD8AYBs5pZn2HR4i78NcyGmk8a/view?usp=sharing  
+https://drive.google.com/drive/folders/1po88oK9e6OvYVShvLAbF2nR09im8iEbe?usp=sharing
 
 - Folder Configuration  
 
