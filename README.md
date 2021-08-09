@@ -25,10 +25,11 @@ cd ../
 
 ## Preparation
 a. Data Preparation  
-Nas -> root -> 연구원자료 -> 김대훈 -> ADK2021 -> data.7z 다운로드 후 ADK2021 폴더에 압축 해제  
+ADK2021 Dataset(save to './data')  
 
 b. Weight Preparation  
-Nas -> root -> 연구원자료 -> 김대훈 -> ADK2021 -> epoch_210.pth 다운로드 후 ADK2021/weights 폴더에 저장  
+- Pretrain Weight(save to './weights')  
+https://drive.google.com/file/d/1H5LoUbjD8AYBs5pZn2HR4i78NcyGmk8a/view?usp=sharing  
 
 - 최종 폴더 구성  
 
