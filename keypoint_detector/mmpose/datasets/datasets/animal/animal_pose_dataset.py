@@ -87,7 +87,7 @@ class AnimalPoseDataset(AnimalBaseDataset):
         self.ann_info['use_different_joint_weights'] = True
         self.ann_info['joint_weights'] = np.array(
             [
-                1., 1., 1., 1., 1.2, 1.5, 1., 1.2, 1.5, 1., 1., 1.2, 1.5, 1., 1.2, 1.5, 1
+                1., 1., 1., 1.1, 1.3, 1.6, 1.1, 1.3, 1.3, 1., 1.3, 1.6, 1.6, 1.6, 1.1, 1.3, 1
             ],
             dtype=np.float32).reshape((self.ann_info['num_joints'], 1))
 

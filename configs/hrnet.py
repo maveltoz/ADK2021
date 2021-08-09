@@ -13,12 +13,13 @@ optimizer = dict(
 optimizer_config = dict(grad_clip=None)
 # learning policy
 lr_config = dict(
-    policy='step',
+    policy='CosineAnnealing',
     warmup='linear',
-    warmup_iters=500,
+    warmup_iters=562,
     warmup_ratio=0.001,
-    step=[170, 200])
-total_epochs = 210
+    min_lr=5e-08,
+    by_epoch=False)
+total_epochs = 150
 log_config = dict(
     interval=1,
     hooks=[
@@ -162,7 +163,7 @@ test_pipeline = [
 
 data_root = 'data/animalpose'
 data = dict(
-    samples_per_gpu=16,
+    samples_per_gpu=32,
     workers_per_gpu=2,
     val_dataloader=dict(samples_per_gpu=16),
     test_dataloader=dict(samples_per_gpu=64),
