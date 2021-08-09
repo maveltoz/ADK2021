@@ -31,7 +31,7 @@ b. Weight Preparation
 Pretrain Weight(save to './weights')  
 https://drive.google.com/file/d/1H5LoUbjD8AYBs5pZn2HR4i78NcyGmk8a/view?usp=sharing  
 
-- 최종 폴더 구성  
+- Folder Configuration  
 
 ```text
 ADK2021
