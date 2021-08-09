@@ -25,12 +25,13 @@ cd ../
 
 ## Preparation
 a. Data Preparation  
-Nas -> root -> 연구원자료 -> 김대훈 -> ADK2021 -> data.7z 다운로드 후 ADK2021 폴더에 압축 해제  
+ADK2021 Dataset(save to './data')  
 
 b. Weight Preparation  
-Nas -> root -> 연구원자료 -> 김대훈 -> ADK2021 -> epoch_210.pth 다운로드 후 ADK2021/weights 폴더에 저장  
+Pretrain Weight(save to './weights')  
+https://drive.google.com/file/d/1H5LoUbjD8AYBs5pZn2HR4i78NcyGmk8a/view?usp=sharing  
 
-- 최종 폴더 구성  
+- Folder Configuration  
 
 ```text
 ADK2021
@@ -84,9 +85,8 @@ python tools/test.py configs/hrnet.py weights/best.pth --out out.json
 - `--out` : result filename (save result to './result')
 
 ## Tensorboard
-- config file에 dict(type='TensorboardLoggerHook') 있는지 확인 후 학습( ex> hrnet_w48_256x256.py 26번째 줄 )
-- 학습 종료 후 anaconda prompt에서 해당 가상환경 activate
-- 해당 프로젝트 폴더로 이동 ( ex> cd ADK2021 )
-- `tensorboard --logdir=./work_dirs/hrnet_w48_256x256/tf_logs/` 입력
-- 화면에 나오는 주소로 접속( ex> http://localhost:6006 )
-- 참고 자료) https://copycoding.tistory.com/88
+- Check config file. dict(type='TensorboardLoggerHook')
+- Activate virtual environment
+- Move to project folder ( ex> cd ADK2021 )
+- `tensorboard --logdir=./work_dirs/hrnet_w48_256x256/tf_logs/`
+- Access to the address on the screen ( ex> http://localhost:6006 )
